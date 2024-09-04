@@ -140,7 +140,10 @@ function onCellClicked(elCell, i, j) {
 
     if (gBoard[i][j].isMarked) return
 
-
+    if (isHintClicked) {
+        revealAllNegs(i, j)
+        if (onCellClicked) return
+    }
 
     if (gBoard[i][j].isMine) {
         //MODEL:
@@ -189,7 +192,6 @@ function onCellClicked(elCell, i, j) {
     }
 }
 
-
 function revealNegs(i, j) {
     var row = i - 1
     var col = j - 1
@@ -215,6 +217,71 @@ function revealNegs(i, j) {
         }
     }
 }
+
+function revealAllNegs(i, j) {
+    var row = i - 1
+    var col = j - 1
+
+    for (var k = 0; k < 3; k++) {
+        if (row + k < 0) continue
+        if (row + k === gLevel.SIZE) continue
+        for (var l = 0; l < 3; l++) {
+            if (col + l < 0) continue
+            if (col + l === gLevel.SIZE) continue
+            if (gBoard[row + k][col + l].isMarked) continue
+
+            if (gBoard[row + k][col + l].isMine) {
+                //DOM:
+                var elMine = document.querySelector(`.cell-${row + k}-${col + l} .mine`)
+                elMine.style.maxHeight = FONT_SIZE
+                elMine.classList.add('clicked')
+
+            } else {
+                //DOM:
+                var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
+                elNeg.style.fontSize = FONT_SIZE
+                elNeg.classList.add('clicked')
+            }
+        }
+    }
+    setTimeout(() => {
+        cancelRevealAllNegs(i, j)
+        removeHint()
+     }, 1000)
+}
+
+function cancelRevealAllNegs(i, j) {
+    var row = i - 1
+    var col = j - 1
+
+    for (var k = 0; k < 3; k++) {
+        if (row + k < 0) continue
+        if (row + k === gLevel.SIZE) continue
+        for (var l = 0; l < 3; l++) {
+            if (col + l < 0) continue
+            if (col + l === gLevel.SIZE) continue
+            if (gBoard[row + k][col + l].isMarked) continue
+            if (gBoard[row + k][col + l].isShown) continue
+            
+
+            if (gBoard[row + k][col + l].isMine) {
+                //DOM:
+                var elMine = document.querySelector(`.cell-${row + k}-${col + l} .mine`)
+                elMine.style.maxHeight = 0
+                elMine.classList.remove('clicked')
+
+            } else {
+                //DOM:
+                var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
+                elNeg.style.fontSize = 0
+                elNeg.classList.remove('clicked')
+            }
+        }
+    }
+
+}
+
+
 
 //Called when a cell is right-clicked
 function onCellMarked(elCell, i, j) {
@@ -250,7 +317,7 @@ function checkGameOver() {
             if (gGame.lifeCount === 0) {
                 var elSmiley = document.querySelector('.smiley')
                 console.log(gGame.lifeCount);
-                
+
                 elSmiley.innerText = '😭'
                 return true
             }
@@ -300,17 +367,18 @@ function onResetGame() {
     onInit()
 }
 
-function onHint(elCell){
+function onHint(elCell) {
     elCell.classList.toggle('clicked')
-    isHintClicked = (isHintClicked)? false : true
-    
+    isHintClicked = (isHintClicked) ? false : true
+
     // elCell.style.backgroundColor = '#227B94'
 
-    
+
 }
-function removeHint(){
-    
-    setTimeout(removeHint, 1000)
+function removeHint() {
+    var elClickedHint = document.querySelector('.hint.clicked')
+    elClickedHint.classList.add('hide')
+    isHintClicked = false
 
 
 }
