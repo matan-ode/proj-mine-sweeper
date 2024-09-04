@@ -9,13 +9,20 @@ var gLevel = {
     MINES: 2
 }
 //This is an object in which you can keep and update the current game state
-var gGame
+var gGame = {
+    isOn: false,
+    shownCount: 0,
+    markedCount: 0,
+    secsPassed: 0
+}
 
-var clicksCount = 0
+var clicksCount
 
 
 //This is called when page loads  
 function onInit() {
+    gGame.isOn = true
+    clicksCount = 0
     gBoard = buildBoard()
     renderBoard(gBoard)
 
@@ -99,35 +106,60 @@ function renderBoard(board) {
             if (cellValue === 0) cellValue = ' '
             const className = `cell cell-${i}-${j}`
 
-            strHTML += `<td class="${className}" onclick="onCellClicked(this, ${i}, ${j})">${cellValue}</td>`
+            strHTML += `<td class="${className}" onclick="onCellClicked(this, ${i}, ${j})" oncontextmenu="onCellMarked(this, ${i}, ${j})">${cellValue}<img class="flag hide" src="img/flag.png"></img></td>`
         }
         strHTML += '</tr>'
     }
     const elBoard = document.querySelector('.board')
     elBoard.innerHTML = strHTML
 
+    // Prevent the context menu to show on RightClick
+    const elTable = document.querySelector('table')
+    elTable.addEventListener("contextmenu", (e) => { e.preventDefault() });
 }
 
 //Called when a cell is clicked
 function onCellClicked(elCell, i, j) {
+    if (!gGame.isOn) return
+
     clicksCount++
     if (clicksCount === 1) setRandomMines(i, j)
 
+    if (gBoard[i][j].isMarked) return
+
 
     if (gBoard[i][j].isMine) {
+        //MODEL:
+        gBoard[i][j].isShown = true
+        gGame.shownCount++
+
+        //DOM:
         var elMine = document.querySelector(`.cell-${i}-${j} .mine`)
         elMine.style.maxHeight = '5vw'
-        console.log('Game over');
+
+
 
     } else if (gBoard[i][j].minesAroundCount === 0) {
         revealNegs(i, j)
 
-    } else {
+    } else if (gBoard[i][j].minesAroundCount !== 0) {
         //MODEL:
         gBoard[i][j].isShown = true
+        gGame.shownCount++
 
         //DOM:
+        var elCell = document.querySelector(`.cell-${i}-${j}`)
         elCell.style.fontSize = '4vw'
+    }
+
+
+    if (checkGameOver()) {
+        gGame.isOn = false
+        //ADD MODAL
+    }
+    if (checkVictory()) {
+        gGame.isOn = false
+        //ADD MODAL
     }
 }
 
@@ -143,6 +175,7 @@ function revealNegs(i, j) {
             if (col + l === gLevel.SIZE) continue
             //MODEL:
             gBoard[row + k][col + l].isShown = true
+            gGame.shownCount++
 
             //DOM:
             var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
@@ -152,13 +185,50 @@ function revealNegs(i, j) {
 }
 
 //Called when a cell is right-clicked
-function onCellMarked(elCell) {
+function onCellMarked(elCell, i, j) {
+    if (!gGame.isOn) return
 
+    if (clicksCount === 0) return alert('Left click to start!\nYou can use flags afterwards')
+    if (gBoard[i][j].isShown) return
+
+    //MODEL:
+    gBoard[i][j].isMarked = (gBoard[i][j].isMarked) ? false : true
+    if (gBoard[i][j].isMarked) gGame.markedCount++
+
+    //DOM:
+    var elFlag = document.querySelector(`.cell-${i}-${j} .flag`)
+    elFlag.classList.toggle('hide')
+
+    if (checkVictory()) {
+        gGame.isOn = false
+        //ADD MODAL
+    }
 }
 
 //Game ends when all mines are marked, and all the other cells are shown 
 function checkGameOver() {
 
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            if (gBoard[i][j].isMine && gBoard[i][j].isShown) {
+                console.log('Game over');
+                return true
+            }
+        }
+    }
+}
+
+function checkVictory() {
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            if ((gBoard[i][j].isMine && !gBoard[i][j].isMarked) ||
+                (!gBoard[i][j].isMine && !gBoard[i][j].isShown)) {
+                return false
+
+            }
+        }
+    }
+    return true
 }
 
 //When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 

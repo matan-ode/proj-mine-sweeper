@@ -3,6 +3,10 @@
     max-height: 0;
 }
 
+.flag {
+    max-height: 4vw;
+}
+
 table,
 tr,
 td {
@@ -26,4 +30,8 @@ td:hover {
 
 .footer {
     font-family: Calibri;
+}
+
+.hide {
+    display: none;
 }
