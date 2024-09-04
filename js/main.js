@@ -127,7 +127,7 @@ function onCellClicked(elCell, i, j) {
         gBoard[i][j].isShown = true
 
         //DOM:
-        elCell.style.fontSize = '5vw'
+        elCell.style.fontSize = '4vw'
     }
 }
 
@@ -146,7 +146,7 @@ function revealNegs(i, j) {
 
             //DOM:
             var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
-            elNeg.style.fontSize = '5vw'
+            elNeg.style.fontSize = '4vw'
         }
     }
 }
