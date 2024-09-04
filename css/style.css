@@ -1,0 +1,29 @@
+.mine {
+    /* max-height: 5vw; */
+    max-height: 0;
+}
+
+table,
+tr,
+td {
+    border: 2px solid black;
+    /* border-collapse: collapse; */
+    border-style: outset;
+
+}
+
+td {
+    height: 25px;
+    width: 25px;
+    text-align: center;
+    /* font-size: 5vw */
+    font-size: 0;
+}
+
+td:hover {
+    /* cursor: pointer; */
+}
+
+.footer {
+    font-family: Calibri;
+}
