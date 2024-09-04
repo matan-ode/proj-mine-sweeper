@@ -9,27 +9,36 @@ var gLevel = {
     MINES: 2
 }
 //This is an object in which you can keep and update the current game state
-var gGame = {
-    isOn: false,
-    shownCount: 0,
-    markedCount: 0,
-    secsPassed: 0
-}
+var gGame
 
+var isHintClicked = false
 var clicksCount
-
+const FONT_SIZE = '2vw'
 
 //This is called when page loads  
 function onInit() {
+    gGame = createGame()
+    renderHearts()
     gGame.isOn = true
     clicksCount = 0
     gBoard = buildBoard()
     renderBoard(gBoard)
-
-
 }
 
 
+function createGame() {
+    var elSmiley = document.querySelector('.smiley')
+    elSmiley.innerText = '😁'
+
+    var gGame = {
+        isOn: false,
+        shownCount: 0,
+        markedCount: 0,
+        secsPassed: 0,
+        lifeCount: 3
+    }
+    return gGame
+}
 
 function buildBoard() {
     var board = []
@@ -50,17 +59,20 @@ function buildBoard() {
 // Randomicity for mines set
 function setRandomMines(firstCLickI, firstClickJ) {
 
-    gBoard[0][0].isMine = true
-    gBoard[0][1].isMine = true
-    // for (var k = 0; k < gLevel.MINES; k++) {
-    //     var i = getRandomIntInclusive(0, gLevel.SIZE - 1)
-    //     var j = getRandomIntInclusive(0, gLevel.SIZE - 1)
-    //     if (firstCLickI === i && firstClickJ === j) {
-    //         k--
-    //         continue
-    //     }
-    //     gBoard[i][j].isMine = true
-    // }
+    gBoard = buildBoard()
+
+    // gBoard[0][0].isMine = true
+    // gBoard[0][1].isMine = true
+
+    for (var k = 0; k < gLevel.MINES; k++) {
+        var i = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        var j = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        if (firstCLickI === i && firstClickJ === j) {
+            k--
+            continue
+        }
+        gBoard[i][j].isMine = true
+    }
 
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
@@ -120,6 +132,7 @@ function renderBoard(board) {
 
 //Called when a cell is clicked
 function onCellClicked(elCell, i, j) {
+    if (gBoard[i][j].isShown) return
     if (!gGame.isOn) return
 
     clicksCount++
@@ -128,40 +141,54 @@ function onCellClicked(elCell, i, j) {
     if (gBoard[i][j].isMarked) return
 
 
+
     if (gBoard[i][j].isMine) {
         //MODEL:
         gBoard[i][j].isShown = true
         gGame.shownCount++
+        gGame.lifeCount--
 
         //DOM:
         var elMine = document.querySelector(`.cell-${i}-${j} .mine`)
-        elMine.style.maxHeight = '5vw'
+        elMine.style.maxHeight = FONT_SIZE
+        elMine.classList.add('clicked')
 
-
+        var elLifes = document.querySelector('.lifes')
+        var hearts = ''
+        for (var i = 0; i < gGame.lifeCount; i++) {
+            hearts += '❤️'
+        }
+        elLifes.innerText = hearts
 
     } else if (gBoard[i][j].minesAroundCount === 0) {
         revealNegs(i, j)
 
-    } else if (gBoard[i][j].minesAroundCount !== 0) {
+    } else {
         //MODEL:
         gBoard[i][j].isShown = true
         gGame.shownCount++
 
         //DOM:
         var elCell = document.querySelector(`.cell-${i}-${j}`)
-        elCell.style.fontSize = '4vw'
+        elCell.style.fontSize = FONT_SIZE
+        elCell.classList.add('clicked')
     }
-
 
     if (checkGameOver()) {
         gGame.isOn = false
+        console.log('Game Over');
+
         //ADD MODAL
     }
     if (checkVictory()) {
         gGame.isOn = false
+        console.log('Victory');
+
+
         //ADD MODAL
     }
 }
+
 
 function revealNegs(i, j) {
     var row = i - 1
@@ -173,13 +200,18 @@ function revealNegs(i, j) {
         for (var l = 0; l < 3; l++) {
             if (col + l < 0) continue
             if (col + l === gLevel.SIZE) continue
+            if (gBoard[row + k][col + l].isMarked) continue
+            if (gBoard[row + k][col + l].isMine) continue
+
             //MODEL:
             gBoard[row + k][col + l].isShown = true
             gGame.shownCount++
 
             //DOM:
             var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
-            elNeg.style.fontSize = '4vw'
+            elNeg.style.fontSize = FONT_SIZE
+            elNeg.classList.add('clicked')
+
         }
     }
 }
@@ -201,17 +233,25 @@ function onCellMarked(elCell, i, j) {
 
     if (checkVictory()) {
         gGame.isOn = false
+        console.log('Victory');
+
         //ADD MODAL
     }
 }
 
 //Game ends when all mines are marked, and all the other cells are shown 
 function checkGameOver() {
-
+    var count = 0
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
             if (gBoard[i][j].isMine && gBoard[i][j].isShown) {
-                console.log('Game over');
+                count++
+            }
+            if (gGame.lifeCount === 0) {
+                var elSmiley = document.querySelector('.smiley')
+                console.log(gGame.lifeCount);
+                
+                elSmiley.innerText = '😭'
                 return true
             }
         }
@@ -221,14 +261,24 @@ function checkGameOver() {
 function checkVictory() {
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
-            if ((gBoard[i][j].isMine && !gBoard[i][j].isMarked) ||
+            if ((gBoard[i][j].isMine && !gBoard[i][j].isShown && !gBoard[i][j].isMarked) ||
                 (!gBoard[i][j].isMine && !gBoard[i][j].isShown)) {
                 return false
 
             }
         }
     }
+    var elSmiley = document.querySelector('.smiley')
+    elSmiley.innerText = '😎'
     return true
+}
+
+function chooseDifficulty(size, mines) {
+    gLevel.SIZE = size
+    console.log(gLevel.SIZE);
+
+    gLevel.MINES = mines
+    onInit()
 }
 
 //When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 
@@ -236,3 +286,31 @@ function expandShown(board, elCell, i, j) {
 
 }
 
+
+function renderHearts() {
+    var elLifes = document.querySelector('.lifes')
+    var hearts = ''
+    for (var i = 0; i < gGame.lifeCount; i++) {
+        hearts += '❤️'
+    }
+    elLifes.innerText = hearts
+}
+
+function onResetGame() {
+    onInit()
+}
+
+function onHint(elCell){
+    elCell.classList.toggle('clicked')
+    isHintClicked = (isHintClicked)? false : true
+    
+    // elCell.style.backgroundColor = '#227B94'
+
+    
+}
+function removeHint(){
+    
+    setTimeout(removeHint, 1000)
+
+
+}

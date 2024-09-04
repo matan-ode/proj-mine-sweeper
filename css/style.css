@@ -1,10 +1,99 @@
-.mine {
-    /* max-height: 5vw; */
-    max-height: 0;
+body {
+background-color: #FFDC7F;
 }
 
-.flag {
-    max-height: 4vw;
+.header {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    color: #16325B;
+    margin: auto;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.header:hover {
+    color: hwb(216 3% 25%);
+    /* font-size: larger; */
+}
+
+.extras {
+    min-height: 7vw;
+    /* background-color: hsl(197, 48%, 60%); */
+    padding-block-start: 1.5vw;
+    text-align: center;
+    margin: auto;
+
+    
+}
+
+.lifes {
+    position: absolute;
+    text-align: center;
+    margin: auto;
+    font-size: 4vw;
+    transition: 0.5s;
+
+}
+
+.lifes:hover {
+    cursor: default;
+    font-size: 4.3vw;
+}
+
+.smiley {
+    background-color:#78B7D0;
+    border-radius: 8px;
+    position: absolute;
+    inset-inline-start: 20vw;
+    font-size: 5vw;
+    text-align: center;
+    margin: auto;
+    transition: 0.5s;
+    border: #16325B solid 2px;
+
+}
+
+.smiley:hover {
+    cursor: pointer;
+    background-color: #227B94;
+}
+
+.hint {
+    
+    border-radius: 8px;
+    position: absolute;
+    font-size: 5vw;
+    text-align: center;
+    margin: auto;
+    transition: 0.5s;
+    border: #16325B solid 2px;
+}
+.hint:hover {
+    cursor: pointer;
+    background-color: #227B94;
+}
+
+.hint1{
+    inset-inline-start: 30vw;
+}
+.hint2{
+    inset-inline-start: 38vw;
+}
+.hint3{
+    inset-inline-start: 46vw;
+}
+
+.game {
+    max-height: 70vw;
+    /* border: black 2px solid; */
+    text-align: center;
+    /* width: 250px; */
+    margin: auto;
+    padding-block-start: 4vw;
+}
+
+table{
+    background-color: #227B94;
 }
 
 table,
@@ -12,26 +101,82 @@ tr,
 td {
     border: 2px solid black;
     /* border-collapse: collapse; */
-    border-style: outset;
-
-}
-
-td {
-    height: 5vw;
-    width: 5vw;
     text-align: center;
-    /* font-size: 5vw */
-    font-size: 0;
+    margin: auto;
+    border-radius: 0.8vw;
+
+
 }
 
-td:hover {
-    /* cursor: pointer; */
-}
-
-.footer {
-    font-family: Calibri;
+.mine {
+    /* max-height: 5vw; */
+    max-height: 0;
 }
 
 .hide {
     display: none;
+}
+
+.flag {
+    max-height: 2vw;
+}
+
+td {
+    height: 2.5vw;
+    width: 2.5vw;
+    border-style: outset;
+    text-align: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    /* font-size: 5vw */
+    font-size: 0;
+    font-weight: bold;
+    background-color: #16325B;
+}
+
+td:hover {
+    /* cursor: pointer; */
+    border-style: inset;
+   
+
+}
+.clicked {
+    background-color: #78B7D0;
+    border-style: inset;
+    transition: 0.3s;
+
+
+}
+
+.buttons {
+    margin: auto;
+    text-align: center;
+}
+
+button {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    background-color: #78B7D0;
+    transition: 0.25s;
+    border-radius: 10vw;
+    padding: 1vw;
+    margin-inline-start: 1vw;
+
+}
+
+button:hover {
+    background-color: #227B94;
+    cursor: pointer;
+
+}
+
+
+.footer {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    color: #16325B;
+    transition: 0.7s;
+}
+
+.footer:hover {
+    color: hwb(216 3% 25%);
 }

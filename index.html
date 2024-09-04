@@ -9,11 +9,46 @@
 </head>
 
 <body onload="onInit()">
+    <div class="header">
+        <h1>Mine-Sweeper</h1>
+    </div>
 
-    <table class="board-container">
-        <tbody class="board"></tbody>
-    </table>
-    
+    <div class="extras">
+        <div class="lifes">
+            ❤️❤️❤️
+        </div>
+        <div class="smiley" onclick="onResetGame()">
+            😁
+        </div>
+        <div class="hints">
+            <div class="hint hint1" onclick="onHint(this)">
+                💡
+            </div>
+            <div class="hint hint2" onclick="onHint(this)">
+                💡
+            </div>
+            <div class="hint hint3" onclick="onHint(this)">
+                💡
+            </div>
+        </div>
+
+    </div>
+
+    <div class="app">
+        <div class="game">
+            <table class="board-container">
+                <tbody class="board"></tbody>
+            </table>
+        </div>
+        <br>
+        <div class="buttons">
+            <button onclick="chooseDifficulty(4,2)">Beginner</button>
+            <button onclick="chooseDifficulty(8,14)">Medium</button>
+            <button onclick="chooseDifficulty(12,32)">Expert</button>
+        </div>
+    </div>
+
+
     <br>
     <hr>
 
