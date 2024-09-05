@@ -1,5 +1,26 @@
+:root {
+    --font-size: 4vw;
+}
+
+
 body {
-background-color: #FFDC7F;
+    background-color: #FFDC7F;
+}
+
+.dark-mode {
+    background-color: #16325B;
+    color: #ffffff;
+}
+
+.td.dark-mode {
+    background-color: #FFDC7F;
+    color: #16325B;
+
+}
+
+.dark {
+    margin: auto;
+    text-align: center;
 }
 
 .header {
@@ -11,41 +32,57 @@ background-color: #FFDC7F;
     transition: 0.2s;
 }
 
+.header.dark-mode {
+    color: #ffffff;
+}
+
 .header:hover {
     color: hwb(216 3% 25%);
     /* font-size: larger; */
 }
 
+.header.dark-mode:hover {
+    color: #FFDC7F;
+}
+
 .extras {
-    min-height: 7vw;
+    min-height: 14vw;
     /* background-color: hsl(197, 48%, 60%); */
     padding-block-start: 1.5vw;
     text-align: center;
     margin: auto;
+}
 
-    
+.extra-top {
+    min-height: 7vw;
+    padding: 2vw;
+}
+
+.extra-bottom {
+    min-height: 7vw;
+    padding: 2vw;
 }
 
 .lifes {
     position: absolute;
     text-align: center;
     margin: auto;
-    font-size: 4vw;
+    font-size: var(--font-size);
     transition: 0.5s;
 
 }
 
 .lifes:hover {
     cursor: default;
-    font-size: 4.3vw;
+    font-size: 4.2vw;
 }
 
 .smiley {
-    background-color:#78B7D0;
+    background-color: #78B7D0;
     border-radius: 8px;
     position: absolute;
-    inset-inline-start: 20vw;
-    font-size: 5vw;
+    inset-inline-start: 21.5vw;
+    font-size: var(--font-size);
     text-align: center;
     margin: auto;
     transition: 0.5s;
@@ -59,29 +96,111 @@ background-color: #FFDC7F;
 }
 
 .hint {
-    
+
     border-radius: 8px;
     position: absolute;
-    font-size: 5vw;
+    font-size: var(--font-size);
+    text-align: center;
+    margin: auto;
+    transition: 0.5s;
+    border: #16325B solid 2px;
+    background-color: #78B7D0;
+
+}
+
+.hint:hover {
+    cursor: pointer;
+    background-color: #227B94;
+
+}
+
+.hint.clicked {
+    background-color: #227B94
+}
+
+.hint1 {
+    inset-inline-start: 30vw;
+}
+
+.hint2 {
+    inset-inline-start: 38vw;
+}
+
+.hint3 {
+    inset-inline-start: 46vw;
+}
+
+.safe-click {
+    border-radius: 8px;
+    inset-inline-start: 55vw;
+    position: absolute;
+    /* font-size: 4vw; */
+    background-color: #78B7D0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: var(--font-size);
+    padding: 1vw;
+    text-align: center;
+    margin: auto;
+
+    transition: 0.5s;
+    border: #16325B solid 2px;
+}
+
+.safe-click:hover {
+    cursor: pointer;
+    background-color: #227B94;
+}
+
+.manual {
+    border-radius: 8px;
+    inset-inline-start: 21vw;
+    position: absolute;
+    /* font-size: 4vw; */
+    background-color: #78B7D0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: var(--font-size);
+    padding: 1vw;
     text-align: center;
     margin: auto;
     transition: 0.5s;
     border: #16325B solid 2px;
 }
-.hint:hover {
+
+.manual:hover {
     cursor: pointer;
     background-color: #227B94;
+
 }
 
-.hint1{
-    inset-inline-start: 30vw;
+.manual.clicked {
+    background-color: #227B94;
+
 }
-.hint2{
-    inset-inline-start: 38vw;
+
+.undo {
+    border-radius: 8px;
+    inset-inline-start: 56vw;
+    position: absolute;
+    /* font-size: 4vw; */
+    background-color: #78B7D0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: var(--font-size);
+    font-weight: bold;
+    padding: 1vw;
+    text-align: center;
+    margin: auto;
+    transition: 0.5s;
+    border: #16325B solid 2px;
 }
-.hint3{
-    inset-inline-start: 46vw;
+
+.undo:hover {
+    cursor: pointer;
+    background-color: #227B94;
+
 }
+
 
 .game {
     max-height: 70vw;
@@ -92,7 +211,7 @@ background-color: #FFDC7F;
     padding-block-start: 4vw;
 }
 
-table{
+table {
     background-color: #227B94;
 }
 
@@ -122,8 +241,8 @@ td {
 }
 
 td {
-    height: 2.5vw;
-    width: 2.5vw;
+    height: 3.2vw;
+    width: 3.2vw;
     border-style: outset;
     text-align: center;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -136,15 +255,21 @@ td {
 td:hover {
     /* cursor: pointer; */
     border-style: inset;
-   
+
 
 }
+
+
+
 .clicked {
     background-color: #78B7D0;
     border-style: inset;
     transition: 0.3s;
 
+}
 
+.clicked-manual {
+    background-color: hsl(44, 100%, 68%);
 }
 
 .buttons {
@@ -175,7 +300,8 @@ button:hover {
     /* color: #16325B; */
     margin: auto;
     text-align: center;
-    transition: 0.2s;}
+    transition: 0.2s;
+}
 
 .footer {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -186,4 +312,16 @@ button:hover {
 
 .footer:hover {
     color: hwb(216 3% 25%);
+}
+
+.footer.dark-mode {
+    color: #ffffff;
+}
+
+.footer.dark-mode:hover {
+    color: #FFDC7F;
+}
+
+.safe-clicked {
+    background-color: red;
 }

@@ -1,5 +1,5 @@
 'use strict'
-
+const FONT_SIZE = '2vw'
 
 // A Matrix containing cell objects
 var gBoard
@@ -15,15 +15,26 @@ var gGame
 var isHintClicked = false
 var isRevealingNegs = false
 var clicksCount
-const FONT_SIZE = '2vw'
+var safeClicks
+var isManualMode = false
+var isShowingSafeClick = false
+var lastCellClickInfo = {
+    i: null,
+    j: null,
+    elCell: null
+}
+var lastCellClicks = []
+
 
 
 
 //This is called when page loads  
 function onInit() {
     gGame = createGame()
+    lastCellClicks = []
     renderHearts()
     gGame.isOn = true
+    safeClicks = 3
     clicksCount = 0
     gBoard = buildBoard()
     renderBoard(gBoard)
@@ -70,7 +81,7 @@ function buildBoard() {
 
 // Randomicity for mines set
 function setRandomMines(firstCLickI, firstClickJ) {
-
+    if (isManualMode) return
     gBoard = buildBoard()
 
     // gBoard[0][0].isMine = true
@@ -144,6 +155,10 @@ function renderBoard(board) {
     // Show best score on the board according to board size
     showBestScore()
 
+    // Show safe click above board
+    var elClick = document.querySelector('.safe-click')
+    elClick.innerText = `Safe Click :${safeClicks}`
+
 }
 
 //Called when a cell is clicked
@@ -151,8 +166,24 @@ function onCellClicked(elCell, i, j) {
     if (gBoard[i][j].isShown) return
     if (!gGame.isOn) return
 
+    lastCellClickInfo = {
+        i: i,
+        j: j,
+        elCell: elCell
+    }
+
+    lastCellClicks.push(lastCellClickInfo)
+
     clicksCount++
-    if (clicksCount === 1) setRandomMines(i, j)
+
+    if (clicksCount === 1 && !isManualMode) setRandomMines(i, j)
+
+    if (isManualMode) {
+
+        gBoard[i][j].isMine = (gBoard[i][j].isMine) ? false : true
+        elCell.classList.toggle('clicked-manual')
+        return
+    }
 
     if (gBoard[i][j].isMarked) return
 
@@ -174,7 +205,7 @@ function onCellClicked(elCell, i, j) {
 
         var elLifes = document.querySelector('.lifes')
         var hearts = ''
-        for (var i = 0; i < gGame.lifeCount; i++) {
+        for (var k = 0; k < gGame.lifeCount; k++) {
             hearts += '❤️'
         }
         elLifes.innerText = hearts
@@ -206,12 +237,13 @@ function onCellClicked(elCell, i, j) {
 
         //ADD MODAL
     }
+
 }
 
 function revealNegs(i, j) {
     var row = i - 1
     var col = j - 1
-    
+
     for (var k = 0; k < 3; k++) {
         var currI = row + k
 
@@ -221,7 +253,7 @@ function revealNegs(i, j) {
         for (var l = 0; l < 3; l++) {
             var currJ = col + l
             var currCell = gBoard[currI][col + l]
-            
+
             if (currJ < 0) continue
             if (currJ === gLevel.SIZE) continue
             if (currCell.isMarked) continue
@@ -347,6 +379,7 @@ function checkGameOver() {
                 elSmiley.innerText = '😭'
                 var score = calcScore()
                 setBestScore(score)
+                revealMines()
                 return true
             }
         }
@@ -462,5 +495,204 @@ function showBestScore() {
     gLevel.bestScore = localStorage.getItem(`bestScore${difficulty}`)
     const elScore = document.querySelector('.score h2')
     elScore.innerText = `Best Score: ${gLevel.bestScore}`
+
+}
+
+function onSafeClick(elClick) {
+
+    if (safeClicks === 0) return
+    safeClicks--
+    isShowingSafeClick = true
+    var i = getRandomIntInclusive(0, gLevel.SIZE - 1)
+    var j = getRandomIntInclusive(0, gLevel.SIZE - 1)
+
+    while (gBoard[i][j].isMine || gBoard[i][j].isShown) {
+        i = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        j = getRandomIntInclusive(0, gLevel.SIZE - 1)
+    }
+
+    var elCell = document.querySelector(`.cell-${i}-${j}`)
+    elCell.classList.add('safe-clicked')
+
+    elClick.innerText = `Safe Click :${safeClicks}`
+
+    setTimeout(() => { cancelSafeClick(i, j) }, 2000)
+
+}
+
+function cancelSafeClick(i, j) {
+    var elCell = document.querySelector(`.cell-${i}-${j}`)
+    elCell.classList.remove('safe-clicked')
+}
+
+function onManuallyCreate(elBtn) {
+
+    isManualMode = (isManualMode) ? false : true
+    elBtn.classList.toggle('clicked')
+
+    if (isManualMode) onResetGame()
+
+    if (!isManualMode) {
+        setMinesNegsCount(gBoard)
+        renderBoard(gBoard)
+    }
+}
+
+function revealMines() {
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            if (gBoard[i][j].isMine) {
+                //MODEL:
+                gBoard[i][j].isShown = true
+                gGame.shownCount++
+
+                //DOM:
+                var elMine = document.querySelector(`.cell-${i}-${j} .mine`)
+                elMine.style.maxHeight = FONT_SIZE
+                elMine.classList.add('clicked')
+            }
+        }
+    }
+}
+
+function onCancelClick() {
+    if(lastCellClicks.length === 0) return
+
+    var i = lastCellClicks[lastCellClicks.length-1].i
+    var j = lastCellClicks[lastCellClicks.length-1].j
+    var elCell = lastCellClicks[lastCellClicks.length-1].elCell
+
+    var currCell = gBoard[i][j]
+
+    lastCellClicks.pop()
+
+    if (currCell.isMine) {
+        if (gGame.lifeCount === 0) {
+            undoMinesExpose()
+        }
+        else {
+            //MODEL:
+            gBoard[i][j].isShown = false
+            gGame.shownCount--
+            gGame.lifeCount++
+
+            //DOM:
+            var elMine = document.querySelector(`.cell-${i}-${j} .mine`)
+            elMine.style.maxHeight = 0
+            elMine.classList.remove('clicked')
+
+            var elLifes = document.querySelector('.lifes')
+            var hearts = ''
+            for (var i = 0; i < gGame.lifeCount; i++) {
+                hearts += '❤️'
+            }
+            elLifes.innerText = hearts
+
+        }
+    } else if (currCell.minesAroundCount === 0) {
+        undoRevealNegs(i, j)
+    } else {
+        //MODEL:
+        gBoard[i][j].isShown = false
+        gGame.shownCount--
+
+        //DOM:
+        var elCell = document.querySelector(`.cell-${i}-${j}`)
+        elCell.style.fontSize = 0
+        elCell.classList.remove('clicked')
+    }
+}
+
+function undoMinesExpose() {
+    gGame.lifeCount++
+
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            if (gBoard[i][j].isMine) {
+                //MODEL:
+                gBoard[i][j].isShown = false
+                gGame.shownCount--
+
+                //DOM:
+                var elMine = document.querySelector(`.cell-${i}-${j} .mine`)
+                elMine.style.maxHeight = 0
+                elMine.classList.remove('clicked')
+
+
+                var elLifes = document.querySelector('.lifes')
+                var hearts = ''
+                for (var i = 0; i < gGame.lifeCount; i++) {
+                    hearts += '❤️'
+                }
+                elLifes.innerText = hearts
+            }
+        }
+    }
+}
+
+
+function undoRevealNegs(i, j) {
+    var row = i - 1
+    var col = j - 1
+
+
+
+    for (var k = 0; k < 3; k++) {
+        var currI = row + k
+
+        if (currI < 0) continue
+        if (currI === gLevel.SIZE) continue
+
+        for (var l = 0; l < 3; l++) {
+            var currJ = col + l
+            var currCell = gBoard[currI][col + l]
+            var isClickedNumber = false
+
+            if (currJ < 0) continue
+            if (currJ === gLevel.SIZE) continue
+            if (currCell.isMarked) continue
+            if (currCell.isMine) continue
+            if (!currCell.isShown) continue
+
+
+            // Check if the cell was clicked before, if it was => do not hide him
+            if (lastCellClicks.length > 0) {
+                for (var p = 0; p < lastCellClicks.length; p++) {
+                    if (lastCellClicks[p].i === currI && lastCellClicks[p].j === currJ) {
+                        isClickedNumber = true
+                        continue
+                    }
+                }
+            }
+
+            if (!isClickedNumber) {
+                //MODEL:
+                currCell.isShown = false
+                gGame.shownCount--
+
+                //DOM:
+                var elNeg = document.querySelector(`.cell-${currI}-${currJ}`)
+                elNeg.style.fontSize = 0
+                elNeg.classList.remove('clicked')
+
+                // Recursion to expose all empty neighbors
+                if (currCell.minesAroundCount === 0) {
+                    undoRevealNegs(currI, currJ)
+                }
+            }
+        }
+    }
+}
+
+
+function toggleDarkMode() {
+    var elBody = document.querySelector('body')
+    elBody.classList.toggle('dark-mode')
+
+    var elHeader = document.querySelector('.header')
+    elHeader.classList.toggle('dark-mode')
+    
+    var elFooter = document.querySelector('.footer')
+    elFooter.classList.toggle('dark-mode')
 
 }

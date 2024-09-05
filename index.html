@@ -14,24 +14,42 @@
     </div>
 
     <div class="extras">
-        <div class="lifes">
-            ❤️❤️❤️
-        </div>
-        <div class="smiley" onclick="onResetGame()">
-            😁
-        </div>
-        <div class="hints">
-            <div class="hint hint1" onclick="onHint(this)">
-                💡
+
+        <div class="extra-top">
+            <div class="lifes">
+                ❤️❤️❤️
             </div>
-            <div class="hint hint2" onclick="onHint(this)">
-                💡
+
+            <div class="smiley" onclick="onResetGame()">
+                😁
             </div>
-            <div class="hint hint3" onclick="onHint(this)">
-                💡
+
+            <div class="hints">
+                <div class="hint hint1" onclick="onHint(this)">
+                    💡
+                </div>
+                <div class="hint hint2" onclick="onHint(this)">
+                    💡
+                </div>
+                <div class="hint hint3" onclick="onHint(this)">
+                    💡
+                </div>
+            </div>
+
+            <div class="safe-click" onclick="onSafeClick(this)">
+                Safe Click: 3
             </div>
         </div>
 
+        <div class="extra-bottom">
+            <div class="manual" onclick="onManuallyCreate(this)">
+                Manually Create
+            </div>
+
+            <div class="undo" onclick="onCancelClick()">
+                Undo
+            </div>
+        </div>
     </div>
 
     <div class="app">
@@ -52,6 +70,9 @@
         <h2></h2>
     </div>
 
+    <div class="dark" onclick="toggleDarkMode()">
+        <button>Dark Mode</button>
+    </div>
 
     <br>
     <hr>
