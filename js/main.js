@@ -171,8 +171,11 @@ function onCellClicked(elCell, i, j) {
         j: j,
         elCell: elCell
     }
+    if (!isHintClicked && !isManualMode) {
+        lastCellClicks.push(lastCellClickInfo)
+        console.log('push:', lastCellClicks);
 
-    lastCellClicks.push(lastCellClickInfo)
+    }
 
     clicksCount++
 
@@ -384,6 +387,7 @@ function checkGameOver() {
             }
         }
     }
+    return false
 }
 
 function checkVictory() {
@@ -429,6 +433,7 @@ function onResetGame() {
 function onHint(elCell) {
     if (isRevealingNegs) return
     if (!gGame.isOn) return
+    if (isHintClicked && !elCell.classList.contains('clicked')) return
     elCell.classList.toggle('clicked')
     isHintClicked = (isHintClicked) ? false : true
 
@@ -556,21 +561,24 @@ function revealMines() {
 }
 
 function onCancelClick() {
-    if(lastCellClicks.length === 0) return
+    if (lastCellClicks.length === 0) return
+    if (!gGame.isOn) gGame.isOn = true
 
-    var i = lastCellClicks[lastCellClicks.length-1].i
-    var j = lastCellClicks[lastCellClicks.length-1].j
-    var elCell = lastCellClicks[lastCellClicks.length-1].elCell
+
+    var i = lastCellClicks[lastCellClicks.length - 1].i
+    var j = lastCellClicks[lastCellClicks.length - 1].j
+    var elCell = lastCellClicks[lastCellClicks.length - 1].elCell
 
     var currCell = gBoard[i][j]
 
     lastCellClicks.pop()
+    console.log('pop:', lastCellClicks);
 
     if (currCell.isMine) {
         if (gGame.lifeCount === 0) {
             undoMinesExpose()
-        }
-        else {
+
+        } else {
             //MODEL:
             gBoard[i][j].isShown = false
             gGame.shownCount--
@@ -601,6 +609,11 @@ function onCancelClick() {
         elCell.style.fontSize = 0
         elCell.classList.remove('clicked')
     }
+
+    if (checkGameOver() === false) {
+        var elSmiley = document.querySelector('.smiley')
+        elSmiley.innerText = '😁'
+    }
 }
 
 function undoMinesExpose() {
@@ -608,33 +621,46 @@ function undoMinesExpose() {
 
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
+            var isClickedNumber = false
             if (gBoard[i][j].isMine) {
-                //MODEL:
-                gBoard[i][j].isShown = false
-                gGame.shownCount--
 
-                //DOM:
-                var elMine = document.querySelector(`.cell-${i}-${j} .mine`)
-                elMine.style.maxHeight = 0
-                elMine.classList.remove('clicked')
-
-
-                var elLifes = document.querySelector('.lifes')
-                var hearts = ''
-                for (var i = 0; i < gGame.lifeCount; i++) {
-                    hearts += '❤️'
+                // Check if the cell was clicked before, if it was => do not hide him
+                if (lastCellClicks.length > 0) {
+                    for (var p = 0; p < lastCellClicks.length; p++) {
+                        if (lastCellClicks[p].i === i && lastCellClicks[p].j === j) {
+                            isClickedNumber = true
+                            continue
+                        }
+                    }
                 }
-                elLifes.innerText = hearts
+
+
+                if (!isClickedNumber) {
+                    //MODEL:
+                    gBoard[i][j].isShown = false
+                    gGame.shownCount--
+
+                    //DOM:
+                    var elMine = document.querySelector(`.cell-${i}-${j} .mine`)
+                    elMine.style.maxHeight = 0
+                    elMine.classList.remove('clicked')
+                }
             }
         }
     }
+
+    var elLifes = document.querySelector('.lifes')
+    var hearts = ''
+    for (var i = 0; i < gGame.lifeCount; i++) {
+        hearts += '❤️'
+    }
+    elLifes.innerText = hearts
 }
 
 
 function undoRevealNegs(i, j) {
     var row = i - 1
     var col = j - 1
-
 
 
     for (var k = 0; k < 3; k++) {
@@ -657,7 +683,7 @@ function undoRevealNegs(i, j) {
 
             // Check if the cell was clicked before, if it was => do not hide him
             if (lastCellClicks.length > 0) {
-                for (var p = 0; p < lastCellClicks.length; p++) {
+                for (var p = 0; p < lastCellClicks.length - 1; p++) {
                     if (lastCellClicks[p].i === currI && lastCellClicks[p].j === currJ) {
                         isClickedNumber = true
                         continue
@@ -691,7 +717,7 @@ function toggleDarkMode() {
 
     var elHeader = document.querySelector('.header')
     elHeader.classList.toggle('dark-mode')
-    
+
     var elFooter = document.querySelector('.footer')
     elFooter.classList.toggle('dark-mode')
 
