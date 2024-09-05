@@ -215,7 +215,7 @@ function onCellClicked(elCell, i, j) {
 
     if (!isHintClicked && !isManualMode && !isMegaMode) {
         lastCellClicks.push(lastCellClickInfo)
-    
+
 
     }
 
@@ -725,7 +725,7 @@ function undoRevealNegs(i, j) {
 
             // Check if the cell was clicked before, if it was => do not hide him
             if (lastCellClicks.length > 0) {
-                for (var p = 0; p < lastCellClicks.length - 1; p++) {
+                for (var p = 0; p < lastCellClicks.length; p++) {
                     if (lastCellClicks[p].i === currI && lastCellClicks[p].j === currJ) {
                         isClickedNumber = true
                         continue
@@ -766,7 +766,7 @@ function toggleDarkMode() {
 }
 
 function onMegaClick(elBtn) {
-    if(megaModeUsed) return alert('Sorry, you already used it...')
+    if (megaModeUsed) return alert('Sorry, you already used it...')
 
     isMegaMode = (isMegaMode) ? false : true
     elBtn.classList.toggle('clicked')
@@ -783,22 +783,10 @@ function onMegaClick(elBtn) {
 function cancelMegaReveal() {
 
     for (var k = megaRange[0].i; k <= megaRange[1].i; k++) {
+        var currI = k
         for (var l = megaRange[0].j; l <= megaRange[1].j; l++) {
-            var currI = k
             var currJ = l
-            var isClickedNumber = false
-
-            // Check if the cell was clicked before, if it was => do not hide him
-            if (lastCellClicks.length > 0) {
-                for (var p = 0; p < lastCellClicks.length - 1; p++) {
-                    if (lastCellClicks[p].i === currI && lastCellClicks[p].j === currJ) {
-                        isClickedNumber = true
-                        continue
-                    }
-                }
-            }
-
-            if (!isClickedNumber) {
+            if (!gBoard[currI][currJ].isShown) {
 
                 var elCell = document.querySelector(`.cell-${k}-${l}`)
                 elCell.style.fontSize = 0
