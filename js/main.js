@@ -18,7 +18,7 @@ var clicksCount
 var safeClicks
 var isManualMode = false
 var isShowingSafeClick = false
-var isMegaMode
+var isMegaMode =false
 
 var megaModeUsed
 var megaRange
@@ -220,10 +220,9 @@ function onCellClicked(elCell, i, j) {
     }
 
 
-    if (!isHintClicked && !isManualMode && !isMegaMode) {
+    if (!isHintClicked && !isManualMode && (!isMegaMode || megaModeUsed)) {
         lastCellClicks.push(lastCellClickInfo)
-
-
+        console.log(lastCellClicks);
     }
 
     clicksCount++
