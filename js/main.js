@@ -1,5 +1,5 @@
 'use strict'
-const FONT_SIZE = '2vw'
+const FONT_SIZE = '15px'
 
 // A Matrix containing cell objects
 var gBoard
@@ -55,9 +55,9 @@ function createGame() {
     var elHints = document.querySelector('.hints')
     var strHints = ''
     for (var i = 0; i < 3; i++) {
-        strHints += `<div class="hint hint${i + 1}" onclick="onHint(this)">
+        strHints += `<button class="hint hint${i + 1}" onclick="onHint(this)">
                         💡
-                    </div>`
+                    </button>`
     }
     elHints.innerHTML = strHints
 
@@ -201,10 +201,17 @@ function onCellClicked(elCell, i, j) {
             for (var k = megaRange[0].i; k <= megaRange[1].i; k++) {
                 for (var l = megaRange[0].j; l <= megaRange[1].j; l++) {
                     // Only DOM for reveal:
-                    var elCell = document.querySelector(`.cell-${k}-${l}`)
 
-                    elCell.style.fontSize = FONT_SIZE
-                    elCell.classList.add('clicked')
+                    if (gBoard[k][l].isMine) {
+                        var elMine = document.querySelector(`.cell-${k}-${l} .mine`)
+                        elMine.style.maxHeight = FONT_SIZE
+                        elMine.classList.add('clicked')
+
+                    } else {
+                        var elCell = document.querySelector(`.cell-${k}-${l}`)
+                        elCell.style.fontSize = FONT_SIZE
+                        elCell.classList.add('clicked')
+                    }
                 }
             }
             setTimeout(cancelMegaReveal, 2000)
@@ -787,10 +794,15 @@ function cancelMegaReveal() {
         for (var l = megaRange[0].j; l <= megaRange[1].j; l++) {
             var currJ = l
             if (!gBoard[currI][currJ].isShown) {
-
-                var elCell = document.querySelector(`.cell-${k}-${l}`)
-                elCell.style.fontSize = 0
-                elCell.classList.remove('clicked')
+                if (gBoard[currI][currJ].isMine) {
+                    var elMine = document.querySelector(`.cell-${k}-${l} .mine`)
+                    elMine.style.maxHeight = 0
+                    elMine.classList.remove('clicked')
+                } else {
+                    var elCell = document.querySelector(`.cell-${k}-${l}`)
+                    elCell.style.fontSize = 0
+                    elCell.classList.remove('clicked')
+                }
             }
         }
     }
