@@ -154,7 +154,7 @@ body {
 
 .manual {
     border-radius: 8px;
-    inset-inline-start: 21vw;
+    inset-inline-start: 16.5vw;
     position: absolute;
     /* font-size: 4vw; */
     background-color: #78B7D0;
@@ -181,7 +181,7 @@ body {
 
 .undo {
     border-radius: 8px;
-    inset-inline-start: 56vw;
+    inset-inline-start: 51vw;
     position: absolute;
     /* font-size: 4vw; */
     background-color: #78B7D0;
@@ -200,6 +200,35 @@ body {
     background-color: #227B94;
 
 }
+
+.mega {
+    border-radius: 8px;
+    inset-inline-start: 65vw;
+    position: absolute;
+    /* font-size: 4vw; */
+    background-color: #78B7D0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: var(--font-size);
+    font-weight: bold;
+    padding: 1vw;
+    text-align: center;
+    margin: auto;
+    transition: 0.5s;
+    border: #16325B solid 2px;
+}
+
+.mega:hover {
+    cursor: pointer;
+    background-color: #227B94;
+
+}
+
+.mega.clicked {
+    background-color: #227B94;
+
+}
+
+
 
 
 .game {

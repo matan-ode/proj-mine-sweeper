@@ -18,6 +18,11 @@ var clicksCount
 var safeClicks
 var isManualMode = false
 var isShowingSafeClick = false
+var isMegaMode
+
+var megaModeUsed
+var megaRange
+
 var lastCellClickInfo = {
     i: null,
     j: null,
@@ -32,6 +37,9 @@ var lastCellClicks = []
 function onInit() {
     gGame = createGame()
     lastCellClicks = []
+    megaModeUsed = false
+    isMegaMode = false
+    megaRange = []
     renderHearts()
     gGame.isOn = true
     safeClicks = 3
@@ -159,6 +167,11 @@ function renderBoard(board) {
     var elClick = document.querySelector('.safe-click')
     elClick.innerText = `Safe Click :${safeClicks}`
 
+    // Return Mega Hint button 'ready-to-click'
+    var elMega = document.querySelector('.mega')
+    elMega.classList.remove('clicked')
+
+
 }
 
 //Called when a cell is clicked
@@ -171,9 +184,38 @@ function onCellClicked(elCell, i, j) {
         j: j,
         elCell: elCell
     }
-    if (!isHintClicked && !isManualMode) {
+
+    if (isMegaMode) {
+
+        var clickInfo = {
+            i,
+            j,
+            elCell
+        }
+        if (megaRange.length === 0) {
+            megaRange.push(clickInfo)
+            alert('Click a cell on Bottom-Right')
+            return
+        } else if (megaRange.length === 1) {
+            megaRange.push(clickInfo)
+            for (var k = megaRange[0].i; k <= megaRange[1].i; k++) {
+                for (var l = megaRange[0].j; l <= megaRange[1].j; l++) {
+                    // Only DOM for reveal:
+                    var elCell = document.querySelector(`.cell-${k}-${l}`)
+
+                    elCell.style.fontSize = FONT_SIZE
+                    elCell.classList.add('clicked')
+                }
+            }
+            setTimeout(cancelMegaReveal, 2000)
+            return
+        }
+    }
+
+
+    if (!isHintClicked && !isManualMode && !isMegaMode) {
         lastCellClicks.push(lastCellClickInfo)
-        console.log('push:', lastCellClicks);
+    
 
     }
 
@@ -722,3 +764,49 @@ function toggleDarkMode() {
     elFooter.classList.toggle('dark-mode')
 
 }
+
+function onMegaClick(elBtn) {
+    if(megaModeUsed) return alert('Sorry, you already used it...')
+
+    isMegaMode = (isMegaMode) ? false : true
+    elBtn.classList.toggle('clicked')
+    if (clicksCount === 0) {
+        alert('Click on a cell first, and than try again.')
+        isMegaMode = (isMegaMode) ? false : true
+        elBtn.classList.toggle('clicked')
+        return
+    }
+    alert('Click a cell on Top-Left')
+
+}
+
+function cancelMegaReveal() {
+
+    for (var k = megaRange[0].i; k <= megaRange[1].i; k++) {
+        for (var l = megaRange[0].j; l <= megaRange[1].j; l++) {
+            var currI = k
+            var currJ = l
+            var isClickedNumber = false
+
+            // Check if the cell was clicked before, if it was => do not hide him
+            if (lastCellClicks.length > 0) {
+                for (var p = 0; p < lastCellClicks.length - 1; p++) {
+                    if (lastCellClicks[p].i === currI && lastCellClicks[p].j === currJ) {
+                        isClickedNumber = true
+                        continue
+                    }
+                }
+            }
+
+            if (!isClickedNumber) {
+
+                var elCell = document.querySelector(`.cell-${k}-${l}`)
+                elCell.style.fontSize = 0
+                elCell.classList.remove('clicked')
+            }
+        }
+    }
+    megaModeUsed = true
+
+}
+
