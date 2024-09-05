@@ -6,14 +6,18 @@ var gBoard
 // This is an object by which the board size is set and how many mines to place
 var gLevel = {
     SIZE: 4,
-    MINES: 2
+    MINES: 2,
+    bestScore: localStorage.getItem('bestScoreBeginner')
 }
 //This is an object in which you can keep and update the current game state
 var gGame
 
 var isHintClicked = false
+var isRevealingNegs = false
 var clicksCount
 const FONT_SIZE = '2vw'
+
+
 
 //This is called when page loads  
 function onInit() {
@@ -29,6 +33,14 @@ function onInit() {
 function createGame() {
     var elSmiley = document.querySelector('.smiley')
     elSmiley.innerText = '😁'
+    var elHints = document.querySelector('.hints')
+    var strHints = ''
+    for (var i = 0; i < 3; i++) {
+        strHints += `<div class="hint hint${i + 1}" onclick="onHint(this)">
+                        💡
+                    </div>`
+    }
+    elHints.innerHTML = strHints
 
     var gGame = {
         isOn: false,
@@ -128,6 +140,10 @@ function renderBoard(board) {
     // Prevent the context menu to show on RightClick
     const elTable = document.querySelector('table')
     elTable.addEventListener("contextmenu", (e) => { e.preventDefault() });
+
+    // Show best score on the board according to board size
+    showBestScore()
+
 }
 
 //Called when a cell is clicked
@@ -141,8 +157,8 @@ function onCellClicked(elCell, i, j) {
     if (gBoard[i][j].isMarked) return
 
     if (isHintClicked) {
-        revealAllNegs(i, j)
-        if (onCellClicked) return
+        if (isRevealingNegs) return
+        return revealAllNegs(i, j)
     }
 
     if (gBoard[i][j].isMine) {
@@ -195,6 +211,7 @@ function onCellClicked(elCell, i, j) {
 function revealNegs(i, j) {
     var row = i - 1
     var col = j - 1
+    var secShownCount = 0
 
     for (var k = 0; k < 3; k++) {
         if (row + k < 0) continue
@@ -205,20 +222,62 @@ function revealNegs(i, j) {
             if (gBoard[row + k][col + l].isMarked) continue
             if (gBoard[row + k][col + l].isMine) continue
 
+
+
+
             //MODEL:
             gBoard[row + k][col + l].isShown = true
             gGame.shownCount++
+            if (gBoard[row + k][col + l].isShown) secShownCount++
 
             //DOM:
             var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
             elNeg.style.fontSize = FONT_SIZE
             elNeg.classList.add('clicked')
-
         }
+    }
+    if (secShownCount > 2) {
+        expandShown(gBoard, i, j)
     }
 }
 
+//When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 
+function expandShown(board, i, j) {
+    // var openerCell = gBoard[i][j]
+    // var openedCell = gBoard[row + k][col + l]
+
+    var row = i - 1
+    var col = j - 1
+    var secShownCount = 0
+
+    for (var k = 0; k < 3; k++) {
+        if (row + k < 0) continue
+        if (row + k === gLevel.SIZE) continue
+        for (var l = 0; l < 3; l++) {
+            if (col + l < 0) continue
+            if (col + l === gLevel.SIZE) continue
+            if (gBoard[row + k][col + l].isMarked) continue
+            if (gBoard[row + k][col + l].isMine) continue
+
+
+
+
+            //MODEL:
+            gBoard[row + k][col + l].isShown = true
+            gGame.shownCount++
+            if (gBoard[row + k][col + l].isShown) secShownCount++
+
+            //DOM:
+            var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
+            elNeg.style.fontSize = FONT_SIZE
+            elNeg.classList.add('clicked')
+        }
+    }
+
+}
+
 function revealAllNegs(i, j) {
+    isRevealingNegs = true
     var row = i - 1
     var col = j - 1
 
@@ -245,9 +304,10 @@ function revealAllNegs(i, j) {
         }
     }
     setTimeout(() => {
+        isRevealingNegs = false
         cancelRevealAllNegs(i, j)
         removeHint()
-     }, 1000)
+    }, 1000)
 }
 
 function cancelRevealAllNegs(i, j) {
@@ -262,7 +322,7 @@ function cancelRevealAllNegs(i, j) {
             if (col + l === gLevel.SIZE) continue
             if (gBoard[row + k][col + l].isMarked) continue
             if (gBoard[row + k][col + l].isShown) continue
-            
+
 
             if (gBoard[row + k][col + l].isMine) {
                 //DOM:
@@ -316,9 +376,9 @@ function checkGameOver() {
             }
             if (gGame.lifeCount === 0) {
                 var elSmiley = document.querySelector('.smiley')
-                console.log(gGame.lifeCount);
-
                 elSmiley.innerText = '😭'
+                var score = calcScore()
+                setBestScore(score)
                 return true
             }
         }
@@ -337,20 +397,18 @@ function checkVictory() {
     }
     var elSmiley = document.querySelector('.smiley')
     elSmiley.innerText = '😎'
+    var score = calcScore()
+    setBestScore(score)
     return true
 }
 
-function chooseDifficulty(size, mines) {
+function chooseDifficulty(size, mines, difficulty) {
     gLevel.SIZE = size
-    console.log(gLevel.SIZE);
-
     gLevel.MINES = mines
+    gLevel.bestScore = localStorage.getItem(`bestScore${difficulty}`)
+    // setBestScore(calcScore())
+    // console.log(gLevel.bestScore);
     onInit()
-}
-
-//When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 
-function expandShown(board, elCell, i, j) {
-
 }
 
 
@@ -368,6 +426,7 @@ function onResetGame() {
 }
 
 function onHint(elCell) {
+    if (!gGame.isOn) return
     elCell.classList.toggle('clicked')
     isHintClicked = (isHintClicked) ? false : true
 
@@ -376,9 +435,63 @@ function onHint(elCell) {
 
 }
 function removeHint() {
-    var elClickedHint = document.querySelector('.hint.clicked')
-    elClickedHint.classList.add('hide')
-    isHintClicked = false
+    var elClickedHint = document.querySelectorAll('.hint.clicked')
+    for (var i = 0; i < 3; i++) {
+        if (!elClickedHint[i]) return
+        elClickedHint[i].classList.add('hide')
+        isHintClicked = false
+    }
+}
 
+function calcScore() {
+    var score = 0
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            if (gBoard[i][j].isMarked && gBoard[i][j].isMine) {
+                score++
+            }
+        }
+    }
+    return score
+}
+
+function setBestScore(score) {
+
+    //MODEL:
+    var bestScore
+    if (gLevel.SIZE === 4) {
+        bestScore = localStorage.getItem('bestScoreBeginner')
+        if (score > bestScore) {
+            localStorage.setItem('bestScoreBeginner', score)
+        }
+    }
+    else if (gLevel.SIZE === 8) {
+        bestScore = localStorage.getItem('bestScoreMedium')
+        if (score > bestScore) {
+            localStorage.setItem('bestScoreMedium', score)
+        }
+    }
+    else if (gLevel.SIZE === 12) {
+        bestScore = localStorage.getItem('bestScoreExpert')
+        if (score > bestScore) {
+            localStorage.setItem('bestScoreExpert', score)
+        }
+    }
+
+    //DOM:
+    showBestScore()
+}
+
+function showBestScore() {
+
+    //DOM:
+    var difficulty
+    if (gLevel.SIZE === 4) difficulty = 'Beginner'
+    else if (gLevel.SIZE === 8) difficulty = 'Medium'
+    else if (gLevel.SIZE === 12) difficulty = 'Expert'
+
+    gLevel.bestScore = localStorage.getItem(`bestScore${difficulty}`)
+    const elScore = document.querySelector('.score h2')
+    elScore.innerText = `Best Score: ${gLevel.bestScore}`
 
 }

@@ -169,6 +169,13 @@ button:hover {
 
 }
 
+.score {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    /* color: #16325B; */
+    margin: auto;
+    text-align: center;
+    transition: 0.2s;}
 
 .footer {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
