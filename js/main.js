@@ -211,70 +211,40 @@ function onCellClicked(elCell, i, j) {
 function revealNegs(i, j) {
     var row = i - 1
     var col = j - 1
-    var secShownCount = 0
-
+    
     for (var k = 0; k < 3; k++) {
-        if (row + k < 0) continue
-        if (row + k === gLevel.SIZE) continue
+        var currI = row + k
+
+        if (currI < 0) continue
+        if (currI === gLevel.SIZE) continue
+
         for (var l = 0; l < 3; l++) {
-            if (col + l < 0) continue
-            if (col + l === gLevel.SIZE) continue
-            if (gBoard[row + k][col + l].isMarked) continue
-            if (gBoard[row + k][col + l].isMine) continue
-
-
-
+            var currJ = col + l
+            var currCell = gBoard[currI][col + l]
+            
+            if (currJ < 0) continue
+            if (currJ === gLevel.SIZE) continue
+            if (currCell.isMarked) continue
+            if (currCell.isMine) continue
+            if (currCell.isShown) continue
 
             //MODEL:
-            gBoard[row + k][col + l].isShown = true
+            currCell.isShown = true
             gGame.shownCount++
-            if (gBoard[row + k][col + l].isShown) secShownCount++
 
             //DOM:
-            var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
+            var elNeg = document.querySelector(`.cell-${currI}-${currJ}`)
             elNeg.style.fontSize = FONT_SIZE
             elNeg.classList.add('clicked')
+
+            // Recursion to expose all empty neighbors
+            if (currCell.minesAroundCount === 0) {
+                revealNegs(currI, currJ)
+            }
         }
-    }
-    if (secShownCount > 2) {
-        expandShown(gBoard, i, j)
     }
 }
 
-//When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 
-function expandShown(board, i, j) {
-    // var openerCell = gBoard[i][j]
-    // var openedCell = gBoard[row + k][col + l]
-
-    var row = i - 1
-    var col = j - 1
-    var secShownCount = 0
-
-    for (var k = 0; k < 3; k++) {
-        if (row + k < 0) continue
-        if (row + k === gLevel.SIZE) continue
-        for (var l = 0; l < 3; l++) {
-            if (col + l < 0) continue
-            if (col + l === gLevel.SIZE) continue
-            if (gBoard[row + k][col + l].isMarked) continue
-            if (gBoard[row + k][col + l].isMine) continue
-
-
-
-
-            //MODEL:
-            gBoard[row + k][col + l].isShown = true
-            gGame.shownCount++
-            if (gBoard[row + k][col + l].isShown) secShownCount++
-
-            //DOM:
-            var elNeg = document.querySelector(`.cell-${row + k}-${col + l}`)
-            elNeg.style.fontSize = FONT_SIZE
-            elNeg.classList.add('clicked')
-        }
-    }
-
-}
 
 function revealAllNegs(i, j) {
     isRevealingNegs = true
@@ -340,8 +310,6 @@ function cancelRevealAllNegs(i, j) {
     }
 
 }
-
-
 
 //Called when a cell is right-clicked
 function onCellMarked(elCell, i, j) {
@@ -426,6 +394,7 @@ function onResetGame() {
 }
 
 function onHint(elCell) {
+    if (isRevealingNegs) return
     if (!gGame.isOn) return
     elCell.classList.toggle('clicked')
     isHintClicked = (isHintClicked) ? false : true
