@@ -224,7 +224,7 @@ function onCellClicked(elCell, i, j) {
 
     if (!isHintClicked && !isManualMode && (!isMegaMode || megaModeUsed)) {
         lastCellClicks.push(lastCellClickInfo)
-        console.log(lastCellClicks);
+        // console.log(lastCellClicks);
     }
 
     clicksCount++
@@ -622,7 +622,7 @@ function onCancelClick() {
     var currCell = gBoard[i][j]
 
     lastCellClicks.pop()
-    console.log('pop:', lastCellClicks);
+    // console.log('pop:', lastCellClicks);
 
     if (currCell.isMine) {
         if (gGame.lifeCount === 0) {
@@ -819,7 +819,7 @@ function onExterminator() {
 
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
-            if (gBoard[i][j].isMine && !gBoard[i][j].isShown) {
+            if (gBoard[i][j].isMine && !gBoard[i][j].isShown && !gBoard[i][j].isMarked) {
                 var currMine = {
                     i: i,
                     j: j
@@ -856,11 +856,12 @@ function onExterminator() {
 
         //DOM Mine:
         var elMine = document.querySelector(`.cell-${currI}-${currJ}`)
-        console.log(elMine);
+        // console.log(elMine);
 
         elMine.classList.add('deleted-mine')
         elMine.classList.remove('mine')
         elMine.innerText = gBoard[currI][currJ].minesAroundCount
+        elMine.style.fontSize = '0px'
 
         //DOM Negs:
         var row = currI - 1
