@@ -18,10 +18,12 @@ var clicksCount
 var safeClicks
 var isManualMode = false
 var isShowingSafeClick = false
-var isMegaMode =false
 
+var isMegaMode = false
 var megaModeUsed
 var megaRange
+
+var totalMines
 
 var lastCellClickInfo = {
     i: null,
@@ -37,6 +39,7 @@ var lastCellClicks = []
 function onInit() {
     gGame = createGame()
     lastCellClicks = []
+    totalMines = []
     megaModeUsed = false
     isMegaMode = false
     megaRange = []
@@ -116,7 +119,6 @@ function setMinesNegsCount(board) {
             board[i][j].minesAroundCount = countMinesNegs(i, j)
         }
     }
-
 }
 
 function countMinesNegs(i, j) {
@@ -769,6 +771,9 @@ function toggleDarkMode() {
     var elFooter = document.querySelector('.footer')
     elFooter.classList.toggle('dark-mode')
 
+    var elHints = document.querySelector('.hints')
+    elHints.classList.toggle('dark-mode')
+
 }
 
 function onMegaClick(elBtn) {
@@ -806,6 +811,75 @@ function cancelMegaReveal() {
         }
     }
     megaModeUsed = true
-
 }
 
+function onExterminator() {
+    if (clicksCount === 0) return alert('Start the game first, by clicking on the table')
+    if (gLevel.SIZE === 4) return alert('Available only on levels MEDIUM and EXPERT')
+
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            if (gBoard[i][j].isMine && !gBoard[i][j].isShown) {
+                var currMine = {
+                    i: i,
+                    j: j
+                }
+                totalMines.push(currMine)
+            }
+        }
+    }
+
+    var deletedMines = []
+
+    for (var k = 0; k < 3; k++) {
+        var randomIdx = getRandomIntInclusive(0, totalMines.length - 1)
+        var deletedMine = totalMines.splice(randomIdx, 1)[0]
+        deletedMines.push(deletedMine)
+
+        // console.log(deletedMines);
+
+        //MODEL Mine:
+        var currI = deletedMine.i
+        var currJ = deletedMine.j
+        gBoard[currI][currJ].isMine = false
+    }
+
+    //MODEL Negs - Updating minesAroundCount:
+    setMinesNegsCount(gBoard)
+
+    for (var p = 0; p < deletedMines.length; p++) {
+        // console.log(deletedMines[p]);
+
+
+        var currI = deletedMines[p].i
+        var currJ = deletedMines[p].j
+
+        //DOM Mine:
+        var elMine = document.querySelector(`.cell-${currI}-${currJ}`)
+        console.log(elMine);
+
+        elMine.classList.add('deleted-mine')
+        elMine.classList.remove('mine')
+        elMine.innerText = gBoard[currI][currJ].minesAroundCount
+
+        //DOM Negs:
+        var row = currI - 1
+        var col = currJ - 1
+
+        for (var m = 0; m < 3; m++) {
+            if (row + m < 0) continue
+            if (row + m === gLevel.SIZE) continue
+            for (var l = 0; l < 3; l++) {
+                if (col + l < 0) continue
+                if (col + l === gLevel.SIZE) continue
+                var elNeg = document.querySelector(`.cell-${row + m}-${col + l}`)
+                var strMinesAround = (gBoard[row + m][col + l].minesAroundCount === 0) ? ' ' : gBoard[row + m][col + l].minesAroundCount
+
+                if (!gBoard[row + m][col + l].isMine) {
+                    elNeg.innerHTML = `${strMinesAround}<img class="flag hide" src="img/flag.png"></img>`
+
+                }
+            }
+        }
+    }
+}

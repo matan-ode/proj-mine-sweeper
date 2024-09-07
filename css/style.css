@@ -110,12 +110,25 @@ button:hover {
 }
 
 .hints {
-    background-color:#FFDC7F;
+    background-color: #FFDC7F;
     border: #FFDC7F solid 0px;
 }
 
-.hints:hover{
-    background-color:#FFDC7F;
+.hints.dark-mode {
+    background-color: #16325B;
+
+}
+
+.hints:hover {
+    cursor: auto;
+    background-color: #FFDC7F;
+
+}
+
+
+.hints.dark-mode:hover {
+    cursor: auto;
+    background-color: #16325B;
 
 }
 
@@ -236,7 +249,28 @@ button:hover {
 
 }
 
+.exterminator {
+    border-radius: 8px;
+    background-color: #78B7D0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: var(--font-size);
+    font-weight: bold;
+    text-align: center;
+    margin: auto;
+    transition: 0.5s;
+    border: #16325B solid 2px;
+}
 
+.exterminator:hover {
+    cursor: pointer;
+    background-color: #227B94;
+
+}
+
+.exterminator.clicked {
+    background-color: #227B94;
+
+}
 
 
 .game {
@@ -245,11 +279,12 @@ button:hover {
     text-align: center;
     /* width: 250px; */
     margin: auto;
-    padding-block-start: 4vw;
+    padding-block-start: 70px;
 }
 
 table {
     background-color: #227B94;
+
 
 }
 
